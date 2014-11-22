@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process name="sunfeng" xmlns="http://jbpm.org/4.4/jpdl">
+   <start g="97,36,33,39" name="start1">
+      <transition g="-31,-34" name="to filltable" to="fillTable"/>
+   </start>
+   <task assignee="sender" g="187,38,85,44" name="fillTable">
+      <transition g="-34,-35" name="to ifSenderPay" to="exclusive1"/>
+   </task>
+   <decision expr="#{payer == 'sender' ? 'to posterConfirmPaymentA' : 'to deliverGood'}" g="330,39,31,31" name="exclusive1">
+      <transition g="-99,17" name="to posterConfirmPaymentA" to="posterConfirmPaymentA"/>
+      <transition g="-52,-22" name="to deliverGood" to="deliverGood"/>
+   </decision>
+   <task assignee="posterA" g="561,106,182,40" name="posterConfirmPaymentA">
+      <transition g="-13,11" name="to deliverGood" to="deliverGood"/>
+   </task>
+   <decision expr="#{addr == 'out' ? 'to plane' : 'to van'}" g="122,246,40,45" name="exclusive2">
+      <transition g="-34,-21" name="to van" to="van"/>
+      <transition g="-44,1" name="to plane" to="plane"/>
+   </decision>
+   <task assignee="warehouseAdminB" g="328,248,116,49" name="warehouseEntry">
+      <transition g="-17,-30" name="to send" to="send"/>
+   </task>
+   <task assignee="posterB" g="483,255,106,40" name="send">
+      <transition g="-29,-37" name="to cconfirm" to="confirm"/>
+   </task>
+   <task assignee="receiver" g="629,259,114,36" name="confirm">
+      <transition g="686,211;535,208:-49,-22" name="back send" to="send"/>
+      <transition g="-48,19" name="to ifReceiverPay" to="exclusive3"/>
+   </task>
+   <decision expr="#{payer == 'reciver' ? 'to posterConfirmPaymentB' : 'to received'}" g="782,253,32,30" name="exclusive3">
+      <transition g="-141,-19" name="to posterConfirmPaymentB" to="posterConfirmPaymentB"/>
+      <transition g="-70,-22" name="to received" to="received"/>
+   </decision>
+   <task assignee="warehouseAdminA" g="930,40,108,43" name="deliverGood">
+      <transition g="984,174;146,174:-79,-22" name="to ifOutsideProvince" to="exclusive2"/>
+   </task>
+   <task assignee="posterB" g="810,197,167,38" name="posterConfirmPaymentB">
+      <transition g="5,-13" name="to received" to="received"/>
+   </task>
+   <fork g="129,421,35,42" name="fork1">
+      <transition g="14,-2" name="to ReportFinancial" to="ReportFinancial"/>
+      <transition g="9,-16" name="to queryService" to="queryService"/>
+   </fork>
+   <end g="607,427,60,43" name="end1"/>
+   <task assignee="financialStaff" g="248,381,131,44" name="ReportFinancial">
+      <transition g="-59,-7" name="to join1" to="join1"/>
+   </task>
+   <task assignee="customService" g="256,476,109,40" name="queryService">
+      <transition g="-49,-22" name="to join1" to="join1"/>
+   </task>
+   <join g="468,426,37,37" name="join1">
+      <transition g="-50,-22" name="to end1" to="end1"/>
+   </join>
+   <script expr="'van to warehouseEntry'" g="227,207,64,44" name="van">
+      <transition g="-13,-22" name="van to warehouseEntry" to="warehouseEntry"/>
+   </script>
+   <script expr="'plane to warehouseEntry'" g="222,292,74,44" name="plane">
+      <transition g="-14,5" name="plane to warehouseEntry" to="warehouseEntry"/>
+   </script>
+   <script expr="'to fork1'" g="952,258,71,41" name="received">
+      <transition g="986,374;154,367:-52,-22" name="to fork1" to="fork1"/>
+   </script>
+</process>
